@@ -3,75 +3,19 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 var gn="#10b981",rd="#ef4444",gd="#d4a84b",bl="#3b82f6",dm="#94a3b8",cd="#1e293b",bd="#334155",nv="#0f1729",bg="#0b1120",pu="#8b5cf6",or="#f59e0b";
 
-// TradingView Widget Component
+// TradingView Chart - iframe embed (supports all TADAWUL stocks)
 function TVChart(props) {
-  var ref = useRef(null);
-  useEffect(function() {
-    if (!ref.current) return;
-    ref.current.innerHTML = "";
-    var container = document.createElement("div");
-    container.className = "tradingview-widget-container";
-    var widget = document.createElement("div");
-    widget.className = "tradingview-widget-container__widget";
-    widget.style.height = (props.height || 400) + "px";
-    container.appendChild(widget);
-    var script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      symbol: "TADAWUL:" + props.symbol,
-      width: "100%",
-      height: props.height || 400,
-      autosize: false,
-      interval: "D",
-      timezone: "Asia/Riyadh",
-      theme: "dark",
-      style: "1",
-      locale: "ar_AE",
-      backgroundColor: "rgba(14, 17, 32, 1)",
-      gridColor: "rgba(51, 65, 85, 0.3)",
-      hide_side_toolbar: false,
-      allow_symbol_change: true,
-      studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "MASimple@tv-basicstudies"],
-      show_popup_button: true,
-      popup_width: "1000",
-      popup_height: "650",
-      support_host: "https://www.tradingview.com",
-    });
-    container.appendChild(script);
-    ref.current.appendChild(container);
-  }, [props.symbol, props.height]);
-  return <div ref={ref} style={{ borderRadius: 8, overflow: "hidden" }}></div>;
+  var h = props.height || 420;
+  var sym = "TADAWUL:" + props.symbol;
+  var src = "https://s.tradingview.com/widgetembed/?symbol=" + encodeURIComponent(sym) + "&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0f1729&studies=RSI%40tv-basicstudies%1FMACD%40tv-basicstudies%1FMASimple%40tv-basicstudies&theme=dark&style=1&timezone=Asia%2FRiyadh&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=ar_AE&utm_source=baseera&utm_medium=widget&utm_campaign=chart";
+  return <iframe src={src} style={{ width: "100%", height: h, border: "none", borderRadius: 8 }} allowTransparency="true" allow="encrypted-media"></iframe>;
 }
 
-// TradingView Technical Analysis Widget
+// TradingView Technical Analysis - iframe (supports TADAWUL)
 function TVTechAnalysis(props) {
-  var ref = useRef(null);
-  useEffect(function() {
-    if (!ref.current) return;
-    ref.current.innerHTML = "";
-    var container = document.createElement("div");
-    var widget = document.createElement("div");
-    widget.className = "tradingview-widget-container__widget";
-    container.appendChild(widget);
-    var script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      interval: "1D",
-      width: "100%",
-      height: 350,
-      isTransparent: true,
-      symbol: "TADAWUL:" + props.symbol,
-      showIntervalTabs: true,
-      displayMode: "single",
-      locale: "ar_AE",
-      colorTheme: "dark",
-    });
-    container.appendChild(script);
-    ref.current.appendChild(container);
-  }, [props.symbol]);
-  return <div ref={ref}></div>;
+  var sym = "TADAWUL:" + props.symbol;
+  var src = "https://s.tradingview.com/embed-widget/technical-analysis/?locale=ar_AE&colorTheme=dark&isTransparent=true&width=100%25&height=350&symbol=" + encodeURIComponent(sym) + "&interval=1D&showIntervalTabs=true&displayMode=single";
+  return <iframe src={src} style={{ width: "100%", height: 350, border: "none" }} allowTransparency="true"></iframe>;
 }
 
 // TradingView Ticker Tape
