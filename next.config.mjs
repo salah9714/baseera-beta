@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["yahoo-finance2"],
+  experimental: {
+    serverComponentsExternalPackages: ["yahoo-finance2"],
+  },
 };
 export default nextConfig;
