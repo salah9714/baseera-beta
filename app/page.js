@@ -300,6 +300,88 @@ export default function App() {
               </div>
             </div>}
 
+            {/* ═══ بطاقة القرار الذكية (Smart Decision Card) ═══ */}
+            {detail && detail.price && (function() {
+              var fs = 0;
+              if (detail.pe > 0 && detail.pe < 15) fs += 20; else if (detail.pe > 0 && detail.pe < 20) fs += 12; else if (detail.pe > 0) fs += 5;
+              if (detail.divYield > 5) fs += 18; else if (detail.divYield > 3) fs += 12; else if (detail.divYield > 1) fs += 5;
+              if (detail.pb > 0 && detail.pb < 2) fs += 10; else if (detail.pb > 0 && detail.pb < 3) fs += 6;
+              var ts = 50;
+              if (detail.price > (detail.sma50 || 0) && detail.sma50 > 0) ts += 12;
+              if (detail.price > (detail.sma200 || 0) && detail.sma200 > 0) ts += 12;
+              if (detail.rsi && detail.rsi > 40 && detail.rsi < 65) ts += 8;
+              if (detail.rsi && detail.rsi > 70) ts -= 10;
+              if (detail.rsi && detail.rsi < 30) ts += 5;
+              if (detail.changePct > 0) ts += 5;
+              if (detail.volRatio && detail.volRatio > 1.2 && detail.changePct > 0) ts += 8;
+              var mb = regime && regime.score > 65 ? 5 : regime && regime.score < 40 ? -5 : 0;
+              var sc = Math.min(100, Math.max(0, Math.round(fs * 0.45 + ts * 0.45 + mb)));
+              var rec, rc, re;
+              if (sc >= 80) { rec = "فرصة قوية"; rc = gn; re = "⭐"; }
+              else if (sc >= 65) { rec = "إيجابي"; rc = "#22c55e"; re = "📈"; }
+              else if (sc >= 50) { rec = "محايد"; rc = gd; re = "👀"; }
+              else if (sc >= 40) { rec = "حذر"; rc = or; re = "⚠️"; }
+              else { rec = "سلبي"; rc = rd; re = "🔴"; }
+              var conf = Math.min(92, Math.max(30, sc + Math.round(Math.abs(detail.changePct || 0) * 3)));
+              var rsk = detail.rsi > 70 || sc < 35 ? "مرتفع 🔴" : detail.rsi > 60 || sc < 50 ? "متوسط 🟡" : "منخفض 🟢";
+              var tim = sc >= 70 && (detail.rsi || 50) < 65 ? "شراء الآن 🟢" : sc >= 60 ? "شراء تدريجي 📈" : sc >= 50 ? "مراقبة 👀" : sc >= 40 ? "انتظار ⏳" : "تجنب حالياً 🔴";
+              var reasons = [];
+              if (detail.pe > 0 && detail.pe < 15) reasons.push("تقييم جذاب (P/E " + detail.pe + ")");
+              if (detail.pe > 20) reasons.push("تقييم مرتفع (P/E " + detail.pe + ")");
+              if (detail.divYield > 4) reasons.push("عائد توزيع ممتاز (" + detail.divYield.toFixed(1) + "%)");
+              if (detail.price > (detail.sma200 || 0) && detail.sma200 > 0) reasons.push("فوق MA200 (اتجاه صاعد)");
+              if (detail.price < (detail.sma200 || 0) && detail.sma200 > 0) reasons.push("تحت MA200 (اتجاه هابط)");
+              if (detail.rsi && detail.rsi > 70) reasons.push("RSI " + detail.rsi + " - تشبع شراء");
+              if (detail.rsi && detail.rsi < 30) reasons.push("RSI " + detail.rsi + " - فرصة محتملة");
+              if (detail.changePct > 1.5) reasons.push("ارتفاع قوي +" + detail.changePct.toFixed(2) + "%");
+              if (reasons.length === 0) reasons.push("أداء مستقر");
+              var warns = [];
+              if (detail.rsi && detail.rsi > 70) warns.push("تشبع شراء - جني أرباح محتمل");
+              if (detail.pe > 25) warns.push("تقييم مبالغ فيه");
+              if (detail.price < (detail.sma50 || 0) && detail.sma50 > 0) warns.push("تحت MA50 - ضعف فني");
+              if (regime && regime.score < 40) warns.push("السوق في حالة ضعف");
+              if (warns.length === 0) warns.push("لا تحذيرات رئيسية");
+              return (
+                <div style={{ background: rc + "12", borderRadius: 10, border: "2px solid " + rc + "40", padding: 14, marginTop: 8, marginBottom: 8 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 8, color: dm }}>🎯 بطاقة القرار الذكية</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: rc }}>{re} {rec}</div>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: 30, fontWeight: 800, color: rc }}>{sc}</div>
+                      <div style={{ fontSize: 8, color: dm }}>/100</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 5, marginBottom: 10 }}>
+                    <div style={{ background: nv, borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 7, color: dm }}>الثقة</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: conf > 70 ? gn : conf > 50 ? gd : rd }}>{conf}%</div>
+                    </div>
+                    <div style={{ background: nv, borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 7, color: dm }}>المخاطرة</div>
+                      <div style={{ fontSize: 12, fontWeight: 700 }}>{rsk}</div>
+                    </div>
+                    <div style={{ background: nv, borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 7, color: dm }}>التوقيت</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: tim.includes("شراء") ? gn : tim.includes("مراقبة") ? gd : or }}>{tim}</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: gn, marginBottom: 4 }}>💡 لماذا؟</div>
+                      {reasons.map(function(r, i) { return <div key={i} style={{ fontSize: 9, color: dm, padding: "2px 0", borderBottom: "1px solid " + bd }}>✅ {r}</div>; })}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: rd, marginBottom: 4 }}>⚠️ تحذيرات</div>
+                      {warns.map(function(w, i) { return <div key={i} style={{ fontSize: 9, color: dm, padding: "2px 0", borderBottom: "1px solid " + bd }}>⚠️ {w}</div>; })}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 8, padding: "4px 8px", background: nv, borderRadius: 4, fontSize: 8, color: dm, textAlign: "center" }}>هذا تحليل آلي وليس توصية استثمارية. استشر مستشارك المالي.</div>
+                </div>
+              );
+            })()}
+
             <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
               <button onClick={function() { setPg("tv"); }} style={{ background: bl + "20", border: "1px solid " + bl, borderRadius: 6, padding: "6px 12px", color: bl, cursor: "pointer", fontSize: 10, fontWeight: 600 }}>📈 فتح الشارت المتقدم</button>
               <button onClick={function() { setPg("signals"); }} style={{ background: gd + "20", border: "1px solid " + gd, borderRadius: 6, padding: "6px 12px", color: gd, cursor: "pointer", fontSize: 10, fontWeight: 600 }}>🎯 إشارات TradingView</button>
